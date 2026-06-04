@@ -1,3 +1,4 @@
+cat > README.md <<'EOF'
 # PP-358 RAG System
 
 Многоязычная RAG-система по Постановлению Президента Республики Узбекистан № ПП-358 о развитии технологий искусственного интеллекта.
@@ -29,6 +30,32 @@
 - Отображение retrieved source chunks в UI.
 - Streamlit web interface.
 - Кнопка проверки обновлений документа.
+
+---
+
+## Требования
+
+Для запуска проекта требуется:
+
+- Python 3.10 или выше;
+- рекомендуемая версия: Python 3.11;
+- Python 3.14 не рекомендуется, так как некоторые зависимости ChromaDB могут быть несовместимы;
+- OpenAI API key;
+- доступ к интернету для первичной загрузки документа с lex.uz;
+- минимум 5 GB свободного места для установки зависимостей;
+- macOS, Linux или Windows.
+
+Проверить версию Python:
+
+```bash
+python --version
+```
+
+На Windows также можно проверить доступные версии Python:
+
+```powershell
+py -0p
+```
 
 ---
 
@@ -70,42 +97,6 @@ pp358-rag-system/
 
 ---
 
-## Установка
-
-### 1. Создать virtual environment
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-```
-
-### 2. Установить зависимости
-
-```bash
-python3 -m pip install -r requirements.txt
-```
-
-### 3. Настроить `.env`
-
-Создайте `.env` на основе `.env.example`:
-
-```bash
-cp .env.example .env
-```
-
-Пример `.env`:
-
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-EMBEDDING_MODEL=text-embedding-3-large
-LLM_MODEL=gpt-5.5
-CHROMA_PATH=data/chroma_db
-CHROMA_COLLECTION_NAME=pp358_chunks
-TOP_K=5
-```
-
----
-
 ## Используемые модели
 
 В проекте embeddings и LLM разделены.
@@ -123,7 +114,7 @@ LLM_MODEL=gpt-5.5
 
 Модель не fine-tune-ится. Она используется только на этапе answer generation после retrieval. Архитектура проекта позволяет заменить LLM без изменения кода: достаточно изменить значение `LLM_MODEL` в `.env`.
 
-Например:
+Если `gpt-5.5` недоступен для конкретного OpenAI API key, можно заменить модель в `.env`:
 
 ```env
 LLM_MODEL=your_available_model_name
@@ -131,12 +122,374 @@ LLM_MODEL=your_available_model_name
 
 ---
 
-## Запуск проекта
+## Windows PowerShell quick start
+
+Рекомендуется использовать **Windows PowerShell** и **Python 3.11**.
+
+### 1. Установить Python 3.11
+
+```powershell
+winget install Python.Python.3.11
+```
+
+После установки закройте и заново откройте PowerShell или VS Code terminal.
+
+Проверить Python 3.11:
+
+```powershell
+py -3.11 --version
+```
+
+---
+
+### 2. Перейти в папку проекта
+
+```powershell
+cd path\to\pp358-rag-system
+```
+
+---
+
+### 3. Создать virtual environment
+
+```powershell
+py -3.11 -m venv .venv
+```
+
+---
+
+### 4. Активировать virtual environment
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Если PowerShell блокирует активацию, выполните:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+После этого снова активируйте environment:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+
+Альтернативный вариант только для текущей terminal session:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+После активации должно появиться:
+
+```text
+(.venv)
+```
+
+Проверить Python внутри virtual environment:
+
+```powershell
+python --version
+```
+
+Должно быть примерно:
+
+```text
+Python 3.11.x
+```
+
+---
+
+### 5. Установить зависимости
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install --no-cache-dir -r requirements.txt
+```
+
+Флаг `--no-cache-dir` рекомендуется на Windows, чтобы pip не занимал лишнее место во время установки.
+
+Если появляется ошибка:
+
+```text
+No space left on device
+```
+
+очистите pip cache:
+
+```powershell
+python -m pip cache purge
+```
+
+и убедитесь, что на диске есть минимум 5 GB свободного места.
+
+---
+
+### 6. Создать `.env`
+
+```powershell
+copy .env.example .env
+```
+
+Открыть `.env`:
+
+```powershell
+notepad .env
+```
+
+Добавьте OpenAI API key:
+
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+EMBEDDING_MODEL=text-embedding-3-large
+LLM_MODEL=gpt-5.5
+CHROMA_PATH=data/chroma_db
+CHROMA_COLLECTION_NAME=pp358_chunks
+TOP_K=5
+```
+
+---
+
+### 7. Скачать и обработать документ
+
+```powershell
+python scripts\ingest_document.py
+```
+
+Этот скрипт скачивает русскую и узбекскую версии документа с lex.uz, очищает HTML, извлекает текст и таблицы, создаёт chunks и сохраняет версию в `data/versions/`.
+
+---
+
+### 8. Построить VectorDB
+
+```powershell
+python scripts\build_vector_store.py
+```
+
+---
+
+### 9. Запустить Streamlit UI
+
+```powershell
+python -m streamlit run app.py
+```
+
+После запуска откройте:
+
+```text
+http://localhost:8501
+```
+
+---
+
+## macOS quick start
+
+Рекомендуется использовать **Python 3.11**.
+
+### 1. Установить Python 3.11
+
+Если установлен Homebrew:
+
+```bash
+brew install python@3.11
+```
+
+Проверить Python 3.11:
+
+```bash
+python3.11 --version
+```
+
+---
+
+### 2. Перейти в папку проекта
+
+```bash
+cd path/to/pp358-rag-system
+```
+
+---
+
+### 3. Создать virtual environment
+
+```bash
+python3.11 -m venv .venv
+```
+
+Если `python3.11` недоступен, можно использовать:
+
+```bash
+python3 -m venv .venv
+```
+
+---
+
+### 4. Активировать virtual environment
+
+```bash
+source .venv/bin/activate
+```
+
+После активации должно появиться:
+
+```text
+(.venv)
+```
+
+Проверить Python внутри virtual environment:
+
+```bash
+python --version
+```
+
+---
+
+### 5. Установить зависимости
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+---
+
+### 6. Создать `.env`
+
+```bash
+cp .env.example .env
+```
+
+Открыть `.env`:
+
+```bash
+nano .env
+```
+
+Добавьте OpenAI API key:
+
+```env
+OPENAI_API_KEY=your_openai_api_key_here
+EMBEDDING_MODEL=text-embedding-3-large
+LLM_MODEL=gpt-5.5
+CHROMA_PATH=data/chroma_db
+CHROMA_COLLECTION_NAME=pp358_chunks
+TOP_K=5
+```
+
+---
+
+### 7. Скачать и обработать документ
+
+```bash
+python scripts/ingest_document.py
+```
+
+---
+
+### 8. Построить VectorDB
+
+```bash
+python scripts/build_vector_store.py
+```
+
+---
+
+### 9. Запустить Streamlit UI
+
+```bash
+python -m streamlit run app.py
+```
+
+После запуска откройте:
+
+```text
+http://localhost:8501
+```
+
+---
+
+## Быстрый запуск для проверяющего
+
+После клонирования репозитория:
+
+```bash
+git clone <repo_url>
+cd pp358-rag-system
+```
+
+### Windows PowerShell
+
+```powershell
+winget install Python.Python.3.11
+py -3.11 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python --version
+python -m pip install --upgrade pip
+python -m pip install --no-cache-dir -r requirements.txt
+copy .env.example .env
+notepad .env
+python scripts\ingest_document.py
+python scripts\build_vector_store.py
+python -m streamlit run app.py
+```
+
+### macOS
+
+```bash
+brew install python@3.11
+python3.11 -m venv .venv
+source .venv/bin/activate
+python --version
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+cp .env.example .env
+nano .env
+python scripts/ingest_document.py
+python scripts/build_vector_store.py
+python -m streamlit run app.py
+```
+
+После запуска Streamlit откройте:
+
+```text
+http://localhost:8501
+```
+
+Важно: файл `.env` должен содержать OpenAI API key перед запуском `build_vector_store.py` и RAG.
+
+Если `data/versions/` уже находится в репозитории, для базового запуска можно не запускать `ingest_document.py`. Тогда порядок будет:
+
+```bash
+python scripts/build_vector_store.py
+python -m streamlit run app.py
+```
+
+На Windows:
+
+```powershell
+python scripts\build_vector_store.py
+python -m streamlit run app.py
+```
+
+---
+
+## Запуск проекта по шагам
 
 ### 1. Скачать и обработать документ
 
+macOS / Linux:
+
 ```bash
-python3 scripts/ingest_document.py
+python scripts/ingest_document.py
+```
+
+Windows:
+
+```powershell
+python scripts\ingest_document.py
 ```
 
 Команда скачивает русскую и узбекскую версии документа, очищает HTML, извлекает текст и таблицы, создаёт chunks и сохраняет версию в `data/versions/`.
@@ -162,8 +515,16 @@ data/versions/<version_id>/
 
 ### 2. Построить VectorDB
 
+macOS / Linux:
+
 ```bash
-python3 scripts/build_vector_store.py
+python scripts/build_vector_store.py
+```
+
+Windows:
+
+```powershell
+python scripts\build_vector_store.py
 ```
 
 VectorDB создаётся в:
@@ -178,8 +539,16 @@ data/chroma_db/
 
 ### 3. Проверить retrieval
 
+macOS / Linux:
+
 ```bash
-python3 scripts/test_retrieval.py
+python scripts/test_retrieval.py
+```
+
+Windows:
+
+```powershell
+python scripts\test_retrieval.py
 ```
 
 Скрипт проверяет, какие chunks находятся по русским и узбекским вопросам.
@@ -195,8 +564,16 @@ UZ question -> uz_table_0002_row_009
 
 ### 4. Проверить полный RAG pipeline
 
+macOS / Linux:
+
 ```bash
-python3 scripts/test_rag.py
+python scripts/test_rag.py
+```
+
+Windows:
+
+```powershell
+python scripts\test_rag.py
 ```
 
 Скрипт проверяет полный процесс:
@@ -237,8 +614,16 @@ answer with sources
 
 ### 5. Запустить Streamlit UI
 
+macOS / Linux:
+
 ```bash
-python3 -m streamlit run app.py
+python -m streamlit run app.py
+```
+
+Windows:
+
+```powershell
+python -m streamlit run app.py
 ```
 
 После запуска откройте:
@@ -450,10 +835,18 @@ LLM получает только retrieved chunks и должен отвеча�
 - tables;
 - metadata.
 
-Проверить обновления можно командой:
+Проверить обновления:
+
+macOS / Linux:
 
 ```bash
-python3 scripts/check_updates.py
+python scripts/check_updates.py
+```
+
+Windows:
+
+```powershell
+python scripts\check_updates.py
 ```
 
 Update checker:
@@ -480,8 +873,16 @@ New total: 393
 
 Если изменения найдены, нужно пересобрать VectorDB:
 
+macOS / Linux:
+
 ```bash
-python3 scripts/build_vector_store.py
+python scripts/build_vector_store.py
+```
+
+Windows:
+
+```powershell
+python scripts\build_vector_store.py
 ```
 
 ---
@@ -504,26 +905,110 @@ GitHub может показывать проект как преимущест�
 
 ---
 
+## Ограничение embeddings для узбекского языка
+
+В ходе локального тестирования было замечено, что semantic vector search для узбекских вопросов может показывать более слабую точность по сравнению с русскими вопросами. В отдельных тестах качество retrieval для узбекского языка было около 54%.
+
+Это связано не с логикой RAG pipeline, а с ограничениями multilingual embeddings для низкоресурсных языков и юридических текстов на узбекском языке. Узбекский язык представлен в обучающих данных embedding-моделей слабее, чем русский или английский, поэтому semantic similarity может хуже ранжировать релевантные chunks.
+
+Чтобы снизить влияние этого ограничения, в проекте используется hybrid retrieval:
+
+```text
+semantic vector search
++
+lexical search
++
+reranking
+```
+
+Lexical search помогает находить chunks по точным совпадениям слов и морфологически близким формам, а reranking поднимает более релевантные chunks выше. Благодаря этому система может корректно отвечать на узбекские вопросы даже в случаях, когда чистый vector search ставит нужный chunk ниже.
+
+Таким образом, более низкая точность embeddings для узбекского языка является внешним ограничением используемой embedding-модели, а не ошибкой архитектуры проекта.
+
+---
+
 ## Основные команды
 
-```bash
+### Windows PowerShell
+
+```powershell
+# Установить Python 3.11
+winget install Python.Python.3.11
+
+# Создать virtual environment
+py -3.11 -m venv .venv
+
+# Активировать virtual environment
+.\.venv\Scripts\Activate.ps1
+
+# Проверить версию Python
+python --version
+
+# Установить зависимости
+python -m pip install --upgrade pip
+python -m pip install --no-cache-dir -r requirements.txt
+
+# Создать .env
+copy .env.example .env
+
 # Скачать и обработать документы
-python3 scripts/ingest_document.py
+python scripts\ingest_document.py
 
 # Построить VectorDB
-python3 scripts/build_vector_store.py
+python scripts\build_vector_store.py
 
 # Проверить retrieval
-python3 scripts/test_retrieval.py
+python scripts\test_retrieval.py
 
 # Проверить полный RAG
-python3 scripts/test_rag.py
+python scripts\test_rag.py
 
 # Проверить обновления lex.uz
-python3 scripts/check_updates.py
+python scripts\check_updates.py
 
 # Запустить UI
-python3 -m streamlit run app.py
+python -m streamlit run app.py
+```
+
+### macOS
+
+```bash
+# Установить Python 3.11
+brew install python@3.11
+
+# Создать virtual environment
+python3.11 -m venv .venv
+
+# Активировать virtual environment
+source .venv/bin/activate
+
+# Проверить версию Python
+python --version
+
+# Установить зависимости
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+# Создать .env
+cp .env.example .env
+
+# Скачать и обработать документы
+python scripts/ingest_document.py
+
+# Построить VectorDB
+python scripts/build_vector_store.py
+
+# Проверить retrieval
+python scripts/test_retrieval.py
+
+# Проверить полный RAG
+python scripts/test_rag.py
+
+# Проверить обновления lex.uz
+python scripts/check_updates.py
+
+# Запустить UI
+python -m streamlit run app.py
 ```
 
 ---
@@ -551,19 +1036,8 @@ data/chroma_db/
 - После сохранения новой версии документа нужно пересобрать VectorDB.
 - Качество ответа зависит от retrieved chunks и выбранной LLM model.
 - Модель не fine-tune-ится; используется retrieval-time grounding only.
-
-    В ходе локального тестирования было замечено, что semantic vector search для узбекских вопросов может показывать более слабую точность по сравнению с русскими вопросами. В отдельных тестах качество retrieval для узбекского языка было около 54%.
-
-    Это связано не с логикой RAG pipeline, а с ограничениями multilingual embeddings для низкоресурсных языков и юридических текстов на узбекском языке. Узбекский язык представлен в обучающих данных embedding-моделей слабее, чем русский или английский, поэтому semantic similarity может хуже ранжировать релевантные chunks.
-
-    Чтобы снизить влияние этого ограничения, в проекте используется hybrid retrieval:
-
-    ```text
-    semantic vector search
-    +
-    lexical search
-    +
-    reranking
+- Для Windows рекомендуется использовать Python 3.11 и минимум 5 GB свободного места для установки зависимостей.
+- Если `LLM_MODEL=gpt-5.5` недоступен для конкретного API key, можно заменить модель в `.env` без изменения кода.
 
 ---
 
