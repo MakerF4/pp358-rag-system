@@ -1,0 +1,36 @@
+{
+  "version_id": "2026-06-04_16-37-07",
+  "downloaded_at": "2026-06-04T16:37:07",
+  "overall_content_hash": "8481c9edf90b79fe244b5cf1bb4f4ed8ab75d96cf9480ff54784fcb4a11316d5",
+  "status": "initial_version",
+  "languages": {
+    "ru": {
+      "document_name": "PP-358-RU",
+      "source_url": "https://lex.uz/ru/docs/7158606?ONDATE=22.11.2025%2000",
+      "content_hash": "6e0167d4be688f4b74bf0da8d8bac001cb253bb9f49e7c888d7d0ae0a587eb87",
+      "chunks_count": 206,
+      "tables_count": 3,
+      "files": {
+        "raw_html": "ru/raw.html",
+        "clean_text": "ru/clean_text.txt",
+        "chunks": "ru/chunks.json",
+        "tables": "ru/tables.json"
+      }
+    },
+    "uz": {
+      "document_name": "PQ-358-UZ",
+      "source_url": "https://lex.uz/uz/docs/7158604?ONDATE=22.11.2025%2000",
+      "content_hash": "7a244d48cc1293ab291a7617f94cf5c5314b3f8c70f035f029efed2b30709a97",
+      "chunks_count": 187,
+      "tables_count": 3,
+      "files": {
+        "raw_html": "uz/raw.html",
+        "clean_text": "uz/clean_text.txt",
+        "chunks": "uz/chunks.json",
+        "tables": "uz/tables.json"
+      }
+    }
+  },
+  "total_chunks_count": 393,
+  "total_tables_count": 6
+}
